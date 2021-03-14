@@ -1,0 +1,41 @@
+<div xmlns:th="http://www.thymeleaf.org">
+    <footer class="page-footer text-center font-small mt-4 wow fadeIn mt-5" style="visibility: visible; background-color: #004d40;animation-name: fadeIn;" th:fragment="footerBody"
+            id="footer">
+        <!--Copyright-->
+        <div class="footer-copyright py-3 text-center">
+            <a href="https://fabrica-dereva.ru" target="_blank">© 2019 Copyright: Омаров А. С. </a>
+        </div>
+        <!--/.Copyright-->
+
+    </footer>
+    <div th:fragment="jslinks" th:remove="tag">
+
+        <!-- SCRIPTS -->
+        <!-- JQuery -->
+        <script type="text/javascript" src="/webjars/mdbootstrap-bootstrap-material-design/js/jquery-3.4.1.min.js"></script>
+        <!-- Bootstrap tooltips -->
+        <script type="text/javascript" src="/webjars/mdbootstrap-bootstrap-material-design/js/popper.min.js"></script>
+        <!-- Bootstrap core JavaScript -->
+        <script type="text/javascript" src="/webjars/mdbootstrap-bootstrap-material-design/js/bootstrap.min.js"></script>
+        <!-- MDB core JavaScript -->
+        <script type="text/javascript" src="/webjars/mdbootstrap-bootstrap-material-design/js/mdb.min.js"></script>
+
+        <script th:src="@{/js/datatables.min.js}"></script>
+        <script th:src="@{/js/datatables-select.min.js}"></script>
+        <script th:src="@{/js/datatables.fixedColumns.min.js}"></script>
+        <script th:src="@{/js/nice-select.min.js}"></script>
+        <script th:src="@{/js/projectjs.js}"></script>
+
+
+
+        <script th:inline="javascript">
+            new WOW().init();
+        </script>
+
+    </div>
+    <div th:fragment="stompjs" th:remove="tag">
+        <script src="/webjars/sockjs-client/1.0.2/sockjs.min.js"></script>
+        <script src="/webjars/stomp-websocket/2.3.3/stomp.js"></script>
+    </div>
+
+</div>

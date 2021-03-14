@@ -1,0 +1,18 @@
+int firstVariable;
+int getFirstVariable() {return firstVariable;}
+
+volatile int secondVariable;
+int getSecondVariable() {return secondVariable;}
+
+int thirdVariable;
+synchronized int getThirdVariable() {return thirdVariable;}
+
+The first method is non-protected. A thread T1 will access the method, create its own local copy of firstVariable and
+play with it. In the meantime, T2 and T3 can also access firstVariable and modify its value. T1, T2 and T3 will have
+their own values of firstVariable, which might not be the same and that have not been copied to the Main memory of java,
+where the real results are hold.
+getSecondVariable(), on the other hand, accesses a variable that has been declared as volatile. That means, each thread
+is still able to access the method or block since it has not been protected with synchronized, but they will all access
+the same variable from the main memory, and will not create their own local copy. Each thread will be accessing the same
+value. And as we can imagine from the previous examples, getThirdVariable() will only be accessed from one thread at a
+time. That ensures that the variable will remained synchronized throughout all the threads executions.

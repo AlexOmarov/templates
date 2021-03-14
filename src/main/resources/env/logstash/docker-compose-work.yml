@@ -1,0 +1,19 @@
+version: '3'
+services:
+  logstash:
+    image: "logstash:7.9.0"
+    volumes:
+      - ./pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      - ./pipeline.conf:/usr/share/logstash/config/pipelines/pipeline.conf:ro
+      - ./kafka-bonus_mt5_position-stomp:/usr/share/logstash/config/pipelines/kafka-bonus_mt5_position-stomp:ro
+    command: bash -c "bin/logstash-plugin install logstash-codec-avro && bin/logstash-plugin install logstash-output-stomp && bin/logstash-plugin install logstash-codec-avro_schema_registry && bin/logstash-plugin install logstash-codec-json && logstash"
+    environment:
+      - discovery.type=single-node
+      - XPACK_MONITORING_ENABLED=false
+      - STOMP_PASSWORD=smx
+      - KAF_HOSTS=0.dual.kafka.qa-fxenv.com:9092,1.dual.kafka.qa-fxenv.com:9092,2.dual.kafka.qa-fxenv.com:9092
+      #- KAF_HOSTS=qa-fxb2-kafka-21-1.qa-env.com:9092,qa-fxb2-kafka-21-2.qa-env.com:9092,qa-fxb2-kafka-21-3.qa-env.com:9092
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+      - "5046:5046"

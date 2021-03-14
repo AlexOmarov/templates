@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.31'
+}
+
+group 'ru.somarov'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/com.jgoodies/jgoodies-forms
+    compile group: 'com.jgoodies', name: 'jgoodies-forms', version: '1.6.0'
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    testImplementation(platform('org.junit:junit-bom:5.7.1'))
+    testImplementation  'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:3.8.0'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}

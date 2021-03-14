@@ -1,0 +1,44 @@
+@startuml
+autonumber
+title Registration flow for DWD clients
+header Actual at 05.02.2020
+
+actor client
+participant "Android/Web" as front
+
+box "Fxbank" #A9D1EF
+    participant backend as app
+    participant DB as db
+end box
+=== Request for registration ==
+client -> front++: get welcome page
+front --> client: welcome page
+client -> front: get registratio page
+front --> client: registration page
+client -> front: Pass required fields and press "register"
+front -> app++: POST:\n[[ /checkRegistrationPreconditions]]
+
+group #EDEFA9 opt
+app --> front: "AlreadyInUse" code
+front --> client++: Email is already in use
+client -> front: Pass new email
+deactivate client
+end group
+front -> app: POST:\n[[/register]]
+=== Registration business logic ==
+app -> app: set roles to user
+app -> db++: save user
+app -> db: save player
+return player entity info
+=== Redirection to start page ==
+group #C5EFA9 alt [Registration is correct]
+app -> front: OK response with a player/user info\n AND somehow redirect to welcome page
+front -> client++ : Shows account page
+else #EFA9A9 Errors occurred
+app -> front : Response with error code
+deactivate app
+front -> client : Shows errors
+deactivate front
+deactivate client
+end
+@enduml

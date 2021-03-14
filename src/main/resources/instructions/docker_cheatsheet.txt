@@ -1,0 +1,2 @@
+docker container ls --all - все работающие и не работающие контейнеры
+docker image ls - все имэджи

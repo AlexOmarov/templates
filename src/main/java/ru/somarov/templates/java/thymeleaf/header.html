@@ -1,0 +1,30 @@
+<div xmlns:th="http://www.thymeleaf.org"  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="headerBody(titleContent)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Проекты бань под ключ, строительство бань в Алтайском крае, полезные статьи о строительстве и не только">
+    <meta name="author" content="AlexOmarov">
+    <meta property="og:image" content="images/logo.png" />
+    <meta name="yandex-verification" content="e3cdce6e41d3b915" />
+    <meta name="google-site-verification" content="4eFD1b88rLZPDpjqKSkIf7eXVpBFNZMPEGj6bQxkBQo" />
+    <meta name='wmail-verification' content='59b7c2bbafc84ba8607eb737c2e50529' />
+    <meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>
+    <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:text="${titleContent}"></title>
+    <link rel="canonical" href="https://fabrica-dereva.ru/" />
+
+    <!-- Bootstrap core CSS -->
+    <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">-->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <!-- Material Design Bootstrap -->
+    <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.13/css/mdb.min.css" rel="stylesheet">-->
+    <link rel="stylesheet" th:href="@{/css/mdb.min.css}"/>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-136353050-1');
+    </script>
+</head>
+</div>

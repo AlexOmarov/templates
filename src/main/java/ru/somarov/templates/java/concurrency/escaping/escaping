@@ -1,0 +1,15 @@
+class UnsafeStates {
+ private String[] states = new String[] {
+ "AK", "AL" ...
+ };
+ public String[] getStates() { return states; }
+}
+
+
+
+Publishing states in this way is problematic because any caller can modify its contents. In this case, the
+states array has escaped its intended scope, because what was supposed to be private state has been
+effectively made public.
+Publishing an object also publishes any objects referred to by its nonprivate fields. More generally, any object
+that is reachable from a published object by following some chain of nonprivate field references and method
+calls has also been published.

@@ -1,0 +1,13 @@
+# Project exclude paths
+/.gradle/
+/build/
+.idea/
+.idea/.gitignore
+.idea/artifacts/
+.idea/codeStyles/
+.idea/gradle.xml
+.idea/jarRepositories.xml
+.idea/misc.xml
+.idea/modules/
+.idea/uiDesigner.xml
+web/

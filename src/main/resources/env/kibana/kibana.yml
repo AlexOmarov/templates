@@ -1,0 +1,11 @@
+#global:
+#  scrape_interval:     15s
+#  external_labels:
+#    monitor: 'omarov-monitor'
+#
+#
+#scrape_configs:
+#  - job_name: 'auth_service'
+#    metrics_path: '/actuator/prometheus'
+#    static_configs:
+#      - targets: ['193.187.174.125:8080']

@@ -1,0 +1,2 @@
+tskill /A ngrok
+ngrok tcp/http 5432/80

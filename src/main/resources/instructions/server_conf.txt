@@ -1,0 +1,278 @@
+﻿#DEFAULT
+sudo apt update
+sudo apt upgrade
+
+#JDK 8
+sudo apt install default-jdk
+
+#BASH
+sudo apt update
+sudo apt install bash
+
+#UBUNTU ADMIN
+useradd -s /bin/bash -g sudo admin
+passwd admin
+/*Ввести пароль*/
+cd /home
+mkdir admin
+usermod -d /home/admin admin
+sudo apt update
+sudo apt install bash
+/*Если баш установлен после создания пользователя,
+тогда заходим через рут и:*/
+chsh -s /bin/bash admin
+
+#APACHE
+sudo systemctl  stop apache2.service
+sudo systemctl status apache2.service
+sudo apt-get --purge remove apache2*
+whereis apache2
+
+#NGINX
+sudo apt-get install nginx
+sudo nano /etc/nginx/sites-available/dwd
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name  example.com !!!www.example.com!!!;
+
+    proxy_redirect           off;
+    proxy_set_header         X-Real-IP $remote_addr;
+    proxy_set_header         X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header         Host $http_host;
+
+    location / {
+            proxy_pass http://127.0.0.1:8080/ !!!(путь приложения в томкате)!!!;
+            
+        }
+}
+server { listen 443 ssl; server_name www.domain.com; redirect 301 https://domain.com;}
+sudo ln -s /etc/nginx/sites-dwd/etc/nginx/sites-enabled/
+sudo systemctl restart nginx.service
+
+#IPV-6
+sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sudo sysctl net.ipv6.conf.default.disable_ipv6=1
+sudo sysctl net.ipv6.conf.lo.disable_ipv6=1
+
+#RUSSIAN UBUNTU
+apt-get install language-pack-ru
+dpkg-reconfigure locales - выбрать ru UTF8
+sudo apt-get upgrade
+
+#CERTBOT
+sudo apt-get install software-properties-common
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt-get update
+sudo apt install python-certbot-nginx
+sudo apt-get update
+sudo apt-get upgrade
+
+sudo nginx -t
+sudo systemctl reload nginx
+
+sudo certbot --nginx -d example.com -d www.example.com
+sudo certbot renew --dry-run
+
+#POSTGRES
+sudo apt update
+sudo apt-get upgrade
+sudo apt -y install vim bash-completion wget
+sudo reboot /*Опционально, можно и не делать, если wget уже был*/
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" |sudo tee  /etc/apt/sources.list.d/pgdg.list
+sudo apt update
+sudo apt upgrade
+sudo apt -y install postgresql-12 postgresql-client-12
+systemctl status postgresql.service
+systemctl status postgresql@12-main.service 
+sudo su - postgres
+psql -c "alter user postgres with password '!!!'"
+
+
+#DATABASE
+sudo -u postgres
+psql
+CREATE DATABASE mytestdb;
+CREATE USER dwd WITH ENCRYPTED PASSWORD '!!!';
+GRANT ALL PRIVILEGES ON DATABASE dwd to dwd;
+/*Зайти в фар(установка фара и создание ssh сессии в файле far_config), 
+поправить pg_hba.conf (инструкция в файле postgres_connection_permission)*/
+/*В putty Ctrl+D несколько раз*/
+sudo systemctl restart postgresql
+
+
+#AFTER THAT RESTART SYSTEM
+
+#DOCKER
+sudo apt-get remove docker docker-engine docker.io containerd runc
+sudo apt-get update
+#add docker repo connection via https
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+#Проверить ключ, последние символы 0EBF CD88
+sudo apt-key fingerprint 0EBFCD88
+#добавить репозиторий
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+#запустить тестовый контейнер
+sudo docker run hello-world
+
+
+
+#DOCKER TLS
+sudo mkdir -p /etc/docker/ssl
+mkdir -p ~/.docker
+openssl genrsa -aes256 -out ca-key.pem 4096
+openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
+#Now we have a certificate
+openssl genrsa -out server-key.pem 4096
+openssl req -subj "/CN=!!!HOST!!!" -sha256 -new -key server-key.pem -out server.csr
+#host is a value you passed on the previous step when you've been asked to enter common name
+#(IN FAR) echo subjectAltName = DNS:$HOST,IP:!!!YOUR_IP!!!,IP:127.0.0.1 >> extfile.cnf
+echo extendedKeyUsage = serverAuth >> extfile.cnf
+sudo openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem  -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+openssl genrsa -out key.pem 4096
+openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+#(IN FAR) echo extendedKeyUsage = clientAuth > extfile-client.cnf
+sudo openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
+  -CAcreateserial -out cert.pem -extfile extfile-client.cnf
+#(OR IN FAR) rm -v client.csr server.csr extfile.cnf extfile-client.cnf
+chmod -v 0400 ca-key.pem key.pem server-key.pem
+
+chmod -v 0444 ca.pem server-cert.pem cert.pem
+sudo systemctl daemon-reload
+sudo systemctl stop docker
+
+#COPY ca.pem, key.pem, cert.pem from /home/admin/.docker to /etc/docker/ssl/
+sudo systemctl daemon-reload
+sudo systemctl start docker
+#Add custom.conf file in /etc/systemd/system/docker.service.d/
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/etc/docker/ssl/ca.pem --tlscert=/etc/docker/ssl/server-cert.pem --tlskey=/etc/docker/ssl/server-key.pem -H=0.0.0.0:2376 -H unix:///var/run/docker.sock
+
+sudo systemctl daemon-reload
+sudo systemctl start docker
+
+
+#IF ERROR, then delete /var/run/docker.pid AND 
+ps axf | grep docker | grep -v grep | awk '{print "kill -9 " $1}' | sudo sh
+sudo journalctl -xe
+q
+
+#JAEGER
+
+docker pull jaegertracing/all-in-one
+
+docker run -d --name jaeger \
+  -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 \
+  -p 5775:5775/udp \
+  -p 6831:6831/udp \
+  -p 6832:6832/udp \
+  -p 5778:5778 \
+  -p 16686:16686 \
+  -p 14268:14268 \
+  -p 14250:14250 \
+  -p 9411:9411 \
+  jaegertracing/all-in-one:1.16
+
+
+#ELK
+docker pull elasticsearch:7.8.1
+docker pull kibana:7.8.1
+docker pull logstash:7.8.1
+
+docker run --name elasticsearch -e discovery.type=single-node -p 9200:9200 -p 9300:9300 elasticsearch:7.8.1
+
+# create file logstash.conf:
+
+
+input {
+    udp {
+        port => "5000"
+        type => syslog
+        codec => json
+    }
+    tcp {
+        port => "5000"
+        type => syslog
+        codec => json_lines
+    }
+    http {
+        port => "5001"
+        codec => "json"
+    }
+}
+
+filter {
+    if [type] == "syslog" {
+        mutate {
+            add_field => { "instance_name" => "%{app_name}-%{host}:%{app_port}" }
+        }
+    }
+}
+
+output {
+    elasticsearch {
+        hosts => ["http://193.187.174.125:9200"]
+        index => "auth_service"
+  }
+}
+
+pscp c:\1.logstash.conf username@hostname:/tmp
+docker run --rm -it -v /tmp/logstash.conf:/usr/share/logstash/config/logstash.conf logstash:7.8.1
+
+#PROMETHEUS
+
+
+docker pull prom/prometheus
+
+#write into prometheus.yaml
+
+global:
+  scrape_interval:     15s
+  external_labels:
+    monitor: 'omarov-monitor'
+
+scrape_configs:
+  - job_name: 'auth_service'
+      scrape_interval: 5s
+      metrics_path: '/actuator/prometheus'
+      static_configs:
+        - targets: ['193.187.174.125:8080']
+
+pscp c:\1.logstash.conf username@hostname:/tmp
+
+docker run \
+    -p 9090:9090 \
+    -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml \
+    prom/prometheus
+
+#REDIS
+wget http://download.redis.io/redis-stable.tar.gz
+tar xvzf redis-stable.tar.gz
+cd redis-stable
+apt install gcc
+apt install make
+make redis-cli
+cp src/redis-cli /usr/local/bin/
+chmod 755 /usr/local/bin/redis-cli
+
+
+
+
+
+
+
+

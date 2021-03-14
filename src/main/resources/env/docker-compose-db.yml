@@ -1,0 +1,26 @@
+version: '3'
+services:
+  auth_service_db:
+    build:
+      context: ../templates/src/main/resources/env/auth_service
+      dockerfile: Dockerfile
+    ports:
+      - "1236:5432"
+    environment:
+      - POSTGRES_PASSWORD=Tomashev2015
+      - POSTGRES_DB=auth_service
+  email_service_db:
+    build:
+      context: ../templates/src/main/resources/env/email_service
+      dockerfile: Dockerfile
+    ports:
+      - "1238:5432"
+    environment:
+      - POSTGRES_PASSWORD=Tomashev2015
+      - POSTGRES_DB=email_service
+  redis:
+    build:
+      context: ../templates/src/main/resources/env/redis
+      dockerfile: Dockerfile
+    ports:
+      - "6379:6379"

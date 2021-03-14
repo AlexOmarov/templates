@@ -1,0 +1,58 @@
+
+
+
+#Create Dockerfile for every service IN ROOT PROJECT DIRECTORY
+FROM openjdk:8-jdk-alpine
+LABEL maintainer="dungeonswdragons@gmail.com"
+RUN addgroup -S !!!USER_SERVICE!!! && adduser -S !!!USER_SERVICE!!! -G !!!USER_SERVICE!!!
+USER !!!USER_SERVICE!!!:!!!USER_SERVICE!!!
+VOLUME /tmp
+EXPOSE 8080
+ARG DEPENDENCY=build/deps
+COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY ${DEPENDENCY}/META-INF /app/META-INF
+COPY ${DEPENDENCY}/BOOT-INF/classes /app
+ENTRYPOINT ["java","-cp","app:app/lib/*","main.DwdApplication"]
+
+
+#Create gradle task to unpack fat jar after build
+gradle.buildFinished {
+    val srcDir = File("$buildDir/libs/${rootProject.name}-${version}.jar")
+    if(srcDir.exists()) {
+        println("Extracting deps")
+        delete("build/deps")
+        mkdir("build/deps")
+        unzipTo(file("build/deps"), srcDir)
+    } else {
+        println("No jar found, please build the project first")
+    }
+}
+
+#Create Dockerfile for each service database
+FROM postgres:12-alpine
+
+USER postgres
+
+COPY init.sql /docker-entrypoint-initdb.d/
+
+RUN mkdir -p "/var/lib/postgresql/data" &&\
+chmod 0700 /var/lib/postgresql/data &&\
+    initdb /var/lib/postgresql/data &&\
+    echo "host !!!USER_SERVICE!!!  !!!DATABASE_SERVICE!!!    127.0.0.1/32  md5" >> /var/lib/postgresql/data/pg_hba.conf &&\
+    echo "listen_addresses='127.0.0.1'" >> /var/lib/postgresql/data/postgresql.conf &&\
+    pg_ctl start 
+
+#Create init.sql file to create new database when container starts
+CREATE DATABASE !!!SERVICE_NAME!!!;
+CREATE USER !!!SERVICE_NAME!!! WITH ENCRYPTED PASSWORD '!!!';
+GRANT ALL PRIVILEGES ON DATABASE !!!SERVICE_NAME!!! TO !!!SERVICE_NAME!!!;
+
+
+#Create command for redis
+#LATER WE SHOULD USE DOCKERFILE WITH CUSTOM CONFIG bind 127.0.0.1 to protect redis not only with password, but connecting only from localhost
+sudo docker run -p 6379:6379 -v $PWD/data:/data --name redis  -d redis:3.2 redis-server --appendonly yes  --requirepass "!!!" --bind 127.0.0.1
+#ON WINDOWS
+docker run -p 6379:6379 -v "%cd%":/data:/data --name redis  -d redis:3.2 redis-server --appendonly yes  --requirepass "!!!" --bind 127.0.0.1
+#DOCKER REDIS props in the far under root
+cd /proc/sys/vm
+#In far change overcommit_memory from 0 to 1

@@ -1,0 +1,15 @@
+version: '3'
+services:
+  logstash:
+    image: "logstash:7.9.0"
+    volumes:
+      - ./pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      - ./pipeline.conf:/usr/share/logstash/config/pipelines/pipeline.conf:ro
+    command: bash -c "bin/logstash-plugin install logstash-codec-avro && bin/logstash-plugin install logstash-output-stomp && bin/logstash-plugin install logstash-codec-avro_schema_registry && bin/logstash-plugin install logstash-codec-json && logstash"
+    environment:
+      - discovery.type=single-node
+      - XPACK_MONITORING_ENABLED=false
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+      - "5046:5046"

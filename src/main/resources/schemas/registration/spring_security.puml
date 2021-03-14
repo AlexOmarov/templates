@@ -1,0 +1,75 @@
+@startuml
+autonumber
+title Spring Security Authentication Flow
+header Actual at 04.11.2020
+
+actor client
+participant "HttpWebHandlerAdapter" as hwha
+participant "ServerWebExchange \n (DefaultServerWebExchange)" as swe
+participant "WebSessionManager \n (DefaultWebSessionManager)" as wsm
+participant "WebSessionIdResolver \n (CookieWebSessionIdResolver \n or HeaderWebSessionIdResolver)" as wsir
+participant "WebSessionStore \n (SpringSessionWebSessionStore)" as wss
+participant "ReactiveSessionRepository \n (ReactiveRedisSessionRepository)" as rsr
+participant "SecurityWebFilterChain" as swfc
+participant "AuthenticationWebFilter" as awf
+participant "ServerWebExchangeMatcher \n (many of them, default - any exchange matches)" as swem
+participant "ServerAuthenticationConverter \n (Form, HttpBasic and X509)" as sac
+participant "ReactiveAuthenticationManagerResolver \n (no implementation)" as ramr
+participant "ReactiveAuthenticationManager \n (UserDetailsRepositoryReactiveAuthenticationManager)" as ram
+participant "ReactiveUserDetailsService \n (UserDetailsRepositoryReactiveAuthenticationManager)" as ruds
+participant "ServerSecurityContextRepository \n (WebSessionServerSecurityContextRepository)" as sscr
+participant "ReactiveSecurityContextHolder" as rsch
+
+=== Creating new ServerWebExchange for request ==
+client -> hwha++: Request endpoint
+hwha -> swe++: Create ServerWebExchange
+swe -> wsm++: Get session (getSession)
+wsm -> wsir++: Retrieve session ids \n (resolveSessionIds)
+return List of session ids (usually one string)
+wsm -> wss++: Retrieve session by id (retrieveSession)
+wss -> rsr++: Find session by id (findById)
+return RedisSession
+return WebSession (RedisSession implementation \n wrapped into SpringSessionWebSession class \n implemented WebSession interface)
+
+group #EDEFA9 opt [WebSession is Empty (expired or wrong session id)]
+
+wsm -> wss++: Create session
+wss -> rsr++: Create session
+return new RedisSession
+return new WebSession \n (RedisSession wrapped \n into SpringSessionWebSession)
+end group
+
+return WebSession \n (RedisSession wrapped \n into SpringSessionWebSession)
+return ServerWebExchange
+
+=== Going through FilterChain ==
+hwha -> swfc++: Delegating swe to filter chain
+swfc -> awf++: Calling authentication filter
+awf -> swem++: Checking if swe matches for authentication or not \n (maybe here our paths rules from config appear)
+return Yes or no
+group #EDEFA9 opt [If yes]
+awf -> sac++: Convert swe to Authentication \n (for form login get the \n form data from swe and \n create UsernamePasswordAuthenticationToken)
+return UsernamePasswordAuthenticationToken (if null, then allother filters apply and after that return 401)
+awf -> ramr++: Find appropriate authentication manager for request (default - only one authentication manager)
+return AuthenticationManager
+awf -> ram++: authenticate
+ram -> ruds++: findUserByUsername
+return user
+return Authentication (UsernamePasswordAuthenticationToken)
+group #E46448 alt [If Failed]
+awf -> awf: Process onErrorHandler
+else #9BE448 If success
+awf -> awf: Process onSuccess
+awf -> sscr++: Save session
+sscr -> wss++: Save session with Security context attribute with authentication inside
+wss -> rsr++: Save session in redis with all attributes
+return session
+return session
+return
+awf -> rsch++: Store security context for further processing
+return
+end group
+end group
+return Proceeding other filters
+
+@enduml

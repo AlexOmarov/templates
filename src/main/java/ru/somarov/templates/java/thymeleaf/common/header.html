@@ -1,0 +1,36 @@
+<div xmlns:th="http://www.thymeleaf.org"  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="headerBody(titleContent)">
+    <link lang="ru">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Лабы по ММЭ">
+    <meta name="author" content="Alex Omarov">
+    <meta property="og:image" content="images/logo.png" />
+<!--
+    <meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>
+    <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>
+-->
+
+    <title th:text="${titleContent}"></title>
+
+    <link rel="canonical" href="http://localhost:8080/" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    <!-- MDBoostrap -->
+    <link rel="stylesheet" href="/webjars/font-awesome/css/all.css">
+    <link rel="stylesheet" href="/webjars/mdbootstrap-bootstrap-material-design/css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" th:href="@{/css/compiled.min.css}"/>
+    <link rel="stylesheet" href="/webjars/mdbootstrap-bootstrap-material-design/css/style.min.css">
+    <!-- Datatables core CSS -->
+    <link rel="stylesheet" th:href="@{/css/datatables.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/datatables-select.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+
+    <link rel="stylesheet" th:href="@{/css/nice-select.css}"/>
+
+    <!-- Custom styles for this template -->
+
+</head>
+</div>

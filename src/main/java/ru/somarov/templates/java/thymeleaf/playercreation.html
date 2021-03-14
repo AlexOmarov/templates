@@ -1,0 +1,270 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<div th:replace="~{header::headerBody('Создание персонажа | Dungeons without Dragons')}"></div>
+<body>
+<div th:replace="~{navigation::navigation(${user} ? ${user.getName()} : null)}"></div>
+<main role="main">
+    <th:block th:with="contextPath=${defaultContextPath} ? ${defaultContextPath} : ''">
+    <div class="container">
+        <section class="my-4">
+            <div th:each="fraction, row: ${fractions}" th:with="numList=${#strings.listSplit('1,0', ',')}" th:if="${row.count} % 2 == 0" class="card-deck my-2">
+                <div class="card selectFraction" th:each="num : ${numList}" th:with="dataIndex=(${row.index} - ${num})" data-toggle="modal" data-target="#modalQuickView"
+                     th:attr="data-text=${fractions[dataIndex].getSpecification()},data-id=${fractions[dataIndex].getId()},data-name=${fractions[dataIndex].getName()}">
+                    <div class="view z-depth-1-half overlay zoom">
+                        <img th:src="${fractions[dataIndex].hasImage()} ? ${contextPath} + '/img/fraction/fraction_' + ${fractions[dataIndex].getId()} + '.jpg' : ${contextPath} + '/img/default/default_player_image.png'" class="img-fluid" alt="Image of ballons flying over canyons with mask pattern one." th:id="'fractionImage_' + ${fractions[dataIndex].getId()}">
+                        <div class="mask pattern-1 flex-center waves-effect waves-light">
+                            <p class="white-text" th:text="${fractions[dataIndex].getName()}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <th:block th:if="${fractions.size() % 2} != 0">
+                <!--Grid row-->
+                <div class="card-deck my-2">
+                    <th:block th:each="i: ${#numbers.sequence((fractions.size() - fractions.size() % 2), fractions.size() - 1)}">
+                        <!--Card-->
+                        <div class="card mb-4 card-cascade wider reverse selectFraction" data-toggle="modal" data-target="#modalQuickView"
+                             th:attr="data-text=${fractions[i].getSpecification()},data-id=${fractions[i].getId()},data-name=${fractions[i].getName()}">
+                            <div class="view z-depth-1-half overlay zoom">
+                                <img th:src="${fractions[i].hasImage()} ? ${contextPath} + '/img/fraction/fraction_' + ${fractions[i].getId()} + '.jpg' : ${contextPath} + '/img/default/default_player_image.png'" class="img-fluid" alt="Image of ballons flying over canyons with mask pattern one." th:id="'fractionImage_' + ${fractions[i].getId()}">
+                                <div class="mask pattern-1 flex-center waves-effect waves-light">
+                                    <p class="white-text" th:text="${fractions[i].getName()}"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Card-->
+                    </th:block>
+                </div>
+            </th:block>
+        </section>
+
+        <!-- Modal: modalQuickView -->
+        <div class="modal fade" id="modalQuickView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="card">
+                        <div class="row justify-content-center">
+                            <div class="col m-0 p-0">
+                                <img class="img-fluid z-depth-1"
+                                     th:src="${contextPath} + '/img/fraction/fraction_-1'"
+                                     alt="First slide" id="modalFractionImage">
+                            </div>
+                        </div>
+                        <form role="form" th:action="@{/createplayer}" method="post" id="createPlayerModalForm" enctype="multipart/form-data">
+                            <input type="hidden" name="fraction" id="modalFraction">
+                        <div class="row mx-4 mt-4">
+                            <div class="col">
+                                <h2 class="h2-responsive product-name text-center">
+                                    <strong th:text="'Фракция'" id="modalFractionName"></strong>
+                                </h2>
+                                <h4 class="h4-responsive"></h4>
+
+                                <p id="modalFractionSpec"></p>
+                                <!--Accordion wrapper-->
+                                <div class="accordion md-accordion" id="accordionEx" role="tablist" aria-multiselectable="true">
+
+                                    <!-- Accordion card -->
+                                    <div class="card">
+
+                                        <!-- Card header -->
+                                        <div class="card-header" role="tab" id="headingOne1">
+                                            <a data-toggle="collapse" data-parent="#accordionEx" href="#collapseOne1" aria-expanded="true"
+                                               aria-controls="collapseOne1">
+                                                <h5 class="mb-0">
+                                                    Общие данные <i class="fas fa-angle-down rotate-icon"></i>
+                                                </h5>
+                                            </a>
+                                        </div>
+
+                                        <!-- Card body -->
+                                        <div id="collapseOne1" class="collapse show" role="tabpanel" aria-labelledby="headingOne1"
+                                             data-parent="#accordionEx">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="md-form mt-0">
+                                                            <input type="text" class="form-control" placeholder="Имя персонажа" name="name" required id="playerCreationName">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <!--Blue select-->
+                                                        <select class="wide" name="specialization" required id="playerCreationSpec">
+                                                            <option th:each="spec, row: ${specializations}"
+                                                                    th:value="${spec.getId()}"
+                                                                    th:text="${spec.getName()}"
+                                                                    th:if="${row.count} == 1" selected></option>
+                                                            <option th:each="spec, row: ${specializations}"
+                                                            th:value="${spec.getId()}"
+                                                            th:text="${spec.getName()}"
+                                                            th:if="${row.count} != 1"></option>
+                                                        </select>
+                                                        <!--/Blue select-->
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group shadow-textarea">
+                                                        <label for="exampleFormControlTextarea6">Описание персонажа</label>
+                                                        <textarea class="form-control z-depth-1" id="exampleFormControlTextarea6" rows="3" placeholder="Напишите биографию персонажа" name="about"></textarea>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <!-- Accordion card -->
+
+                                    <!-- Accordion card -->
+                                    <div class="card">
+
+                                        <!-- Card header -->
+                                        <div class="card-header" role="tab" id="headingTwo2">
+                                            <a class="collapsed" data-toggle="collapse" data-parent="#accordionEx" href="#collapseTwo2"
+                                               aria-expanded="false" aria-controls="collapseTwo2">
+                                                <h5 class="mb-0">
+                                                    Характеристики <i class="fas fa-angle-down rotate-icon"></i>
+                                                </h5>
+                                            </a>
+                                        </div>
+
+                                        <!-- Card body -->
+                                        <div id="collapseTwo2" class="collapse" role="tabpanel" aria-labelledby="headingTwo2"
+                                             data-parent="#accordionEx">
+                                            <div class="card-body">
+                                                <h4>Распределите доступные очки</h4>
+                                                <p> Всего очков: <span class="badge badge-default ml-2" id="allpoints" th:text="${perkpoints.getPlayerStart()}"></span></p>
+                                                <p> Осталось распределить: <span class="badge badge-danger ml-2" id="availablepoints" th:text="${perkpoints.getPlayerStart()}"></span></p>
+                                                <div class="row">
+                                                    <!-- Grid column -->
+                                                    <div class="col">
+                                                        <!-- Material input -->
+                                                        <div class="md-form mt-0">
+                                                            <input type="number" id="strength" name="strength" class="form-control attributeInput" required th:value="'0'" min="0">
+                                                            <label for="strength">Сила</label>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Grid column -->
+
+                                                    <!-- Grid column -->
+                                                    <div class="col">
+                                                        <!-- Material input -->
+                                                        <div class="md-form mt-0">
+                                                            <input type="number" id="agility" name="agility" class="form-control attributeInput" required th:value="'0'" min="0">
+                                                            <label for="agility">Ловкость</label>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Grid column -->
+                                                </div>
+                                                <div class="row">
+                                                    <!-- Grid column -->
+                                                    <div class="col">
+                                                        <!-- Material input -->
+                                                        <div class="md-form mt-0">
+                                                            <input type="number" id="endurance" name="endurance" class="form-control attributeInput" required th:value="'0'" min="0">
+                                                            <label for="endurance">Выносливость</label>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Grid column -->
+
+                                                    <!-- Grid column -->
+                                                    <div class="col">
+                                                        <!-- Material input -->
+                                                        <div class="md-form mt-0">
+                                                            <input type="number" id="perception" name="perception" class="form-control attributeInput" required th:value="'0'" min="0">
+                                                            <label for="perception">Восприятие</label>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Grid column -->
+                                                </div>
+                                                <div class="row">
+                                                    <!-- Grid column -->
+                                                    <div class="col">
+                                                        <!-- Material input -->
+                                                        <div class="md-form mt-0">
+                                                            <input type="number" id="intelligence" name="intelligence" class="form-control attributeInput" required th:value="'0'" min="0">
+                                                            <label for="intelligence">Интеллект</label>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Grid column -->
+
+                                                    <!-- Grid column -->
+                                                    <div class="col">
+                                                        <!-- Material input -->
+                                                        <div class="md-form mt-0">
+                                                            <input type="number" id="charisma" name="charisma" class="form-control attributeInput" required th:value="'0'" min="0">
+                                                            <label for="charisma">Харизма</label>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Grid column -->
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <!-- Accordion card -->
+
+                                    <!-- Accordion card -->
+                                    <div class="card">
+
+                                        <!-- Card header -->
+                                        <div class="card-header" role="tab" id="headingThree3">
+                                            <a class="collapsed" data-toggle="collapse" data-parent="#accordionEx" href="#collapseThree3"
+                                               aria-expanded="false" aria-controls="collapseThree3">
+                                                <h5 class="mb-0">
+                                                    Изображение <i class="fas fa-angle-down rotate-icon"></i>
+                                                </h5>
+                                            </a>
+                                        </div>
+
+                                        <!-- Card body -->
+                                        <div id="collapseThree3" class="collapse" role="tabpanel" aria-labelledby="headingThree3"
+                                             data-parent="#accordionEx">
+                                            <div class="card-body">
+                                                    <div class="file-field">
+                                                        <div class="z-depth-1-half mb-4">
+                                                            <img src="w://mdbootstrap.com/img/Photos/Others/placeholder.jpg" class="img-fluid"
+                                                                 alt="example placeholder" id="playerImageThumb">
+                                                        </div>
+                                                        <div class="d-flex justify-content-center">
+                                                            <div class="btn btn-mdb-color btn-rounded float-left">
+                                                                <span>Выберите изображение</span>
+                                                                <input type="file" accept=" image/jpeg" id="playerImageInput" name="image">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <!-- Accordion card -->
+
+                                </div>
+                                <!-- Accordion wrapper -->
+                            </div>
+                        </div>
+                        <div class="row mx-4 mt-2">
+                            <!-- Add to Cart -->
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отказаться</button>
+                                    <button type="submit" class="btn btn-primary createPlayerButton">Отправить
+                                        <i class="fas fa-cart-plus ml-2" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- /.Add to Cart -->
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </th:block>
+</main>
+<div th:replace="~{footer::footerBody}"></div>
+<div th:replace="~{footer::jslinks}"></div>
+</body>
+</html>

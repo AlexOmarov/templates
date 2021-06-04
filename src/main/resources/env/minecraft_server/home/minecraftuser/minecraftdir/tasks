@@ -1,0 +1,2 @@
+*/1 * * * * sh /home/minecraftuser/backup.sh
+*/1 * * * * sh /home/minecraftuser/minecraftdir/start.sh

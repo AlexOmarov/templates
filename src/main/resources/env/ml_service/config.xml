@@ -59,6 +59,7 @@
       -->
     <http_port>8123</http_port>
 
+    <!--<allow_experimental_map_type>1</allow_experimental_map_type>-->
     <!-- Port for interaction by native protocol with:
          - clickhouse-client and other native ClickHouse tools (clickhouse-benchmark, clickhouse-copier);
          - clickhouse-server with other clickhouse-servers for distributed query processing;

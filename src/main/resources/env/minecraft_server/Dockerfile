@@ -24,7 +24,7 @@ RUN useradd -G sudo -ms /bin/bash minecraftuser && echo "minecraftuser:$PASSWORD
 RUN mkdir /home/minecraftuser/minecraftdir
 RUN mkdir /home/minecraftuser/backup
 
-COPY home/minecraftuser/minecraftdir/ /home/minecraftuser/minecraftdir/
+COPY home/minecraftuser/ /home/minecraftuser/
 
 COPY home/minecraftuser/minecraftdir/tasks /etc/cron.d
 RUN chmod 0644 /etc/cron.d/tasks && crontab /etc/cron.d/tasks

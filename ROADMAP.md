@@ -1,5 +1,7 @@
 Stack
 ===============
+Basic Java
+---------------
 1. Java SE
    - Пакеты, класспас
    - Устройство памяти java
@@ -28,10 +30,12 @@ Stack
     - Security
     - Session
     - Webflux
+    - Spring Cloud
 6. SQL/NOSQL
     - DBeaver
     - Locks
     - Redis
+    - JDBC
 7. Monitoring
     - Amazon
     - Dynatrace
@@ -40,6 +44,7 @@ Stack
     - OpenTracing
     - Grafana
     - Monitoring общих показателей загрузки
+    - SLF4J
 8. Java Specs
     - Reactive streams
     - OOP, Functional programming, Aspect-Oriented
@@ -53,8 +58,15 @@ Stack
     - WebSocket
     - Reactive Socket
     - JMS
+    - RSocket
+    - TCP/UDP
     - OAuth
     - CI/CD
+    - IO
+    - REST
+    - JAX-RS
+    - SOAP
+    - JAX-WS
 9. Patterns
     - GOF
     - Architectural
@@ -89,3 +101,25 @@ Stack
 23. Тестирование
     - Powermock
     - Mockito
+    - JUnit
+    - Spock
+    - Cucumber
+24. Структуры данных и алгоритмы
+25. Utility
+    - Guava
+    - Apache Commons
+    - Jackson
+26. Локализации
+    - I18N
+
+Android Studio
+---------------
+1. Basics
+2. Jetpack
+3. Dagger
+
+Kotlin
+---------------
+1. Basics
+2. Kotlin JS
+3. Kotlin Coroutines

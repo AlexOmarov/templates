@@ -93,24 +93,28 @@ Basic Java
 16. Amazon Terraform
 17. Vault
 18. Kubernetes
-19. Android Studio
-20. Jetpack
-21. Dagger
-22. Intellij IDEA
+19. ELK
+20. Postman
+21. Рабочее место
+22. Картинка с тулзами, которыми можно подглядеть в разные части проекта
+23. Intellij IDEA
     - Хоткеи, использование профилирования
-23. Тестирование
+24. Тестирование
     - Powermock
     - Mockito
     - JUnit
     - Spock
     - Cucumber
-24. Структуры данных и алгоритмы
-25. Utility
+25. Структуры данных и алгоритмы
+26. Utility
     - Guava
     - Apache Commons
     - Jackson
-26. Локализации
+27. Локализации
     - I18N
+
+Софт скилы
+---------------
 
 Android Studio
 ---------------
@@ -141,3 +145,5 @@ Kotlin
 9. NURBS моделирование, сабдивижн моделирование
 10. Скульптурирование и его парадигмы
 11. Компьютерная графика
+
+
